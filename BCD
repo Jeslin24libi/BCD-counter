@@ -1,0 +1,42 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
+ENTITY bcd_count IS
+  PORT (Clk, Rst, En: IN std_logic; 
+        out2, out1, out0: OUT std_logic_vector(3 DOWNTO 0));
+END bcd_count;
+
+ARCHITECTURE bcd_count_beh OF bcd_count IS
+  SIGNAL d100Curr, d100Next, d10Curr, d10Next, d1Curr, d1Next: unsigned(3 DOWNTO 0);
+
+BEGIN
+
+  StateReg: PROCESS (Clk, Rst, En)
+  BEGIN
+    IF (Rst = '1') THEN
+      d100Curr <= (OTHERS =>'0');
+      d10Curr  <= (OTHERS =>'0');
+      d1Curr   <= (OTHERS =>'0');
+    ELSIF (En = '1') THEN
+      IF (Clk = '1' AND Clk'EVENT) THEN
+        d100Curr <= d100Next;
+        d10Curr  <= d10Next;
+        d1Curr   <= d1Next;
+      END IF;
+    END IF;
+  END PROCESS;
+
+  d100Next <= "0000"     WHEN (d100Curr=9 AND d10Curr=9 AND d1Curr=9) ELSE
+              d100Curr+1 WHEN (d10Curr=9 AND d1Curr=9) ELSE
+              d100Curr; 
+  d10Next  <= "0000"     WHEN (d10Curr=9 AND d1Curr=9) ELSE
+              d10Curr+1  WHEN (d1Curr=9) ELSE
+              d10Curr;
+  d1Next   <= "0000"     WHEN (d1Curr=9) ELSE
+              d1Curr+1;
+				  
+  out2 <= std_logic_vector(d100Curr);
+  out1  <= std_logic_vector(d10Curr);
+  out0   <= std_logic_vector(d1Curr);
+END bcd_count_beh;
