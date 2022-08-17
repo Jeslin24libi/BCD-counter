@@ -1,0 +1,41 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY tb_bcd_count IS
+END tb_bcd_count;
+
+ARCHITECTURE TBarch OF tb_bcd_count IS
+  COMPONENT bcd_count IS
+    PORT (Clk, Rst, En: IN std_logic;
+          out2, out1, out0: OUT std_logic_vector (3 DOWNTO 0));
+  END COMPONENT;
+
+  SIGNAL Clk_s, Rst_s, En_s: std_logic;
+  SIGNAL out2_s, out1_s, out0_s: std_logic_vector(3 DOWNTO 0);
+
+BEGIN
+  CompToTest: bcd_count PORT MAP (Clk_s, Rst_s, En_s, out2_s, out1_s, out0_s);
+   
+  Clk_proc: PROCESS
+  BEGIN
+    Clk_s <= '1';
+    WAIT FOR 10 ns;
+    Clk_s <= '0';
+    WAIT FOR 10 ns;
+  END PROCESS clk_proc;
+                      
+  Vector_proc: PROCESS
+  BEGIN
+    Rst_s <= '1';
+    WAIT UNTIL Clk_s='1' AND Clk_s'EVENT;
+    WAIT FOR 5 NS;
+    Rst_s <= '0';
+    En_s <= '1';
+    FOR index IN 0 To 999 LOOP
+      WAIT UNTIL Clk_s='1' AND Clk_s'EVENT;
+    END LOOP;
+	 En_s <= '0';
+    WAIT;
+  END PROCESS Vector_proc;
+
+END TBarch;
